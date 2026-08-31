@@ -28,23 +28,23 @@ public class Route {
     }
 
     public String getOrigin() {
-        return segments.get(0).getOrigin();
+        return segments.get(0).origin();
     }
 
     public String getDestination() {
-        return segments.get(segments.size() - 1).getDestination();
+        return segments.get(segments.size() - 1).destination();
     }
 
     public int totalDistanceMeters() {
-        return segments.stream().mapToInt(Segment::getDistanceMeters).sum();
+        return segments.stream().mapToInt(Segment::distanceMeters).sum();
     }
 
     public int totalTimeMinutes() {
-        return segments.stream().mapToInt(Segment::getEstimatedTimeMinutes).sum();
+        return segments.stream().mapToInt(Segment::estimatedTimeMinutes).sum();
     }
 
     public double averageSecurityLevel() {
-        return segments.stream().mapToInt(Segment::getSecurityLevel).average().orElse(0);
+        return segments.stream().mapToInt(Segment::securityLevel).average().orElse(0);
     }
 
     public boolean hasStairs() {
