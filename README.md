@@ -598,3 +598,50 @@ mvn test
 ```
 
 El objetivo no es producir una aplicación grande, sino demostrar que puede transformar un problema en requerimientos, planificarlo, diseñar una solución mantenible, desarrollarla mediante pruebas y gestionar correctamente su ciclo de integración.
+
+---
+
+# Solución
+
+## Integrante
+
+Nombre: Ignacio Castillo
+
+## Patrón de diseño utilizado
+
+Nombre: **Strategy (Estrategia)**, combinado con una **Factory** simple para resolver la estrategia concreta a partir de la preferencia del usuario.
+
+Justificación: `FASTEST`, `ACCESSIBLE` y `SAFE` son tres formas distintas de resolver el mismo problema (seleccionar la mejor ruta de una colección), cada una con su propio criterio de comparación y sus propias reglas de descarte. El patrón Strategy encapsula cada criterio en una clase independiente que implementa un mismo contrato (`RouteSelectionStrategy`), de modo que el código cliente (`RouteRecommendationService`) no conoce ni depende de los detalles de cada algoritmo, solo invoca `selectBest(routes)` sobre la estrategia que le entrega la factory.
+
+Esto cumple la regla de evolución del sistema (sección 6 del README): para agregar una preferencia nueva (por ejemplo `COVERED`, `LOW_CONGESTION`, `ENERGY_SAVING` o `SCENIC`) solo hace falta:
+
+1. crear una nueva clase que implemente `RouteSelectionStrategy` con su propia lógica de filtrado/selección, y
+2. registrar esa clase en `RouteSelectionStrategyFactory`.
+
+En ningún caso es necesario modificar `FastestRouteStrategy`, `AccessibleRouteStrategy`, `SafeRouteStrategy` ni sus pruebas ya existentes: el diseño respeta el principio Abierto/Cerrado (Open/Closed) porque el comportamiento se extiende agregando clases nuevas, no editando las que ya funcionan.
+
+Clases participantes:
+
+- `RouteSelectionStrategy` (interfaz — contrato del patrón Strategy).
+- `FastestRouteStrategy`, `AccessibleRouteStrategy`, `SafeRouteStrategy` (estrategias concretas, una por preferencia).
+- `RouteSelectionStrategyFactory` (resuelve la estrategia concreta a partir de un `TravelPreference`).
+- `RouteRecommendationService` (contexto/cliente: filtra rutas por origen/destino y delega la selección final en la estrategia obtenida de la factory).
+- `Route`, `Segment`, `TravelPreference` (modelo de dominio usado por todas las estrategias).
+
+## Evidencia TDD
+
+El ciclo `RED → GREEN → REFACTOR` se puede ver directamente en el historial de commits de la rama `feature/HU-route-recommendation` (`git log --oneline`). Cada funcionalidad del dominio y de cada estrategia se desarrolló en al menos tres pasos:
+
+1. **RED**: un commit `test(RED): ...` agrega pruebas para una clase que todavía no existe o no tiene la lógica pedida — el build falla al compilar o los tests fallan.
+2. **GREEN**: un commit `feat(GREEN): ...` agrega la implementación mínima necesaria para que esas pruebas pasen.
+3. **REFACTOR**: por ejemplo el commit `refactor: convert Segment to a Java record`, que simplifica el modelo de dominio manteniendo toda la suite de pruebas en verde.
+
+Este patrón se repite para: el modelo `Route`/`Segment`, `FastestRouteStrategy` (casos 1 y 2), `AccessibleRouteStrategy` (casos 3 y 4), `SafeRouteStrategy` (casos 5 y 6), `RouteSelectionStrategyFactory` y `RouteRecommendationService` (caso 7).
+
+## Jira
+
+URL: *(pendiente — no se contó con un conector/credenciales de Jira durante el desarrollo. El contenido completo de la planeación Agile, con historia, prioridad, story points y tareas técnicas, está documentado en [`docs/agile-planning.md`](docs/agile-planning.md) listo para replicarse en un proyecto de Jira.)*
+
+## Pull Request
+
+URL: *(se agrega al abrir el Pull Request `develop → main`)*
