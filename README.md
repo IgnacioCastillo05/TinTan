@@ -644,4 +644,4 @@ URL: *(pendiente — no se contó con un conector/credenciales de Jira durante e
 
 ## Pull Request
 
-URL: *(se agrega al abrir el Pull Request `develop → main`)*
+URL: https://github.com/IgnacioCastillo05/TinTan/pull/1
